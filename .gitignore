@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+course_pack/
+course_pack.zip
+rt_dicom_example/
+notebooks/rt_dicom_example/
+notebooks/course_pack/
+student_version/
+*.egg-info/
+.pytest_cache/
+instructor_private/
+executed_notebooks/

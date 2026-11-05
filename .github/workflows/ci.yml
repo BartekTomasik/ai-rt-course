@@ -1,0 +1,59 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
+      - name: Install
+        run: pip install -r requirements-dev.txt
+      - name: Unit tests
+        run: pytest -q tests
+      - name: Notebooks are in sync with notebooks/src
+        run: python scripts/build_notebooks.py --check
+      - name: Run all notebooks (synthetic / emergency mode)
+        env:
+          RTCOURSE_MODE: synthetic
+        run: python scripts/run_notebooks.py -v --save executed_notebooks
+      - name: Course-pack pipeline + challenge scoring (synthetic pack)
+        run: |
+          mkdir -p /tmp/pack && cd /tmp/pack
+          python $GITHUB_WORKSPACE/data/prepare_course_pack.py --source synthetic --n-cases 2 --n-challenge 2 --no-zip
+          python $GITHUB_WORKSPACE/projects/challenge/baseline.py --pack course_pack --out sub
+          python $GITHUB_WORKSPACE/projects/challenge/evaluate.py --submission sub --ground-truth instructor_private/challenge_gt --leaderboard lb.csv
+      - name: Notebooks with a course pack (real-data code path, MODE=auto)
+        env:
+          RTCOURSE_MODE: auto
+          RTCOURSE_DATA: /tmp/pack/course_pack
+        run: python scripts/run_notebooks.py -v notebooks/01_dicom_rt.ipynb notebooks/03_autosegmentacja.ipynb notebooks/04_kontur_a_dawka.ipynb
+      - name: Instructor materials (bonus solutions, quiz bank)
+        if: hashFiles('instructor/solutions/bonus_solutions.py') != ''
+        env:
+          RTCOURSE_MODE: synthetic
+        run: |
+          python instructor/solutions/bonus_solutions.py
+          python instructor/quiz/build_quiz.py --check
+      - name: Student version builds without instructor/
+        run: bash scripts/make_student_version.sh /tmp/student_version
+      - name: Upload executed notebooks
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: executed-notebooks
+          path: executed_notebooks/
+          if-no-files-found: ignore
