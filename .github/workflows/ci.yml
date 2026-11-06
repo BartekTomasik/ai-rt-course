@@ -34,6 +34,7 @@ jobs:
         run: |
           mkdir -p /tmp/pack && cd /tmp/pack
           python $GITHUB_WORKSPACE/data/prepare_course_pack.py --source synthetic --n-cases 2 --n-challenge 2 --no-zip
+          python $GITHUB_WORKSPACE/data/check_course_pack.py course_pack
           python $GITHUB_WORKSPACE/projects/challenge/baseline.py --pack course_pack --out sub
           python $GITHUB_WORKSPACE/projects/challenge/evaluate.py --submission sub --ground-truth instructor_private/challenge_gt --leaderboard lb.csv
       - name: Notebooks with a course pack (real-data code path, MODE=auto)

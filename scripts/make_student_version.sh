@@ -20,7 +20,8 @@ mkdir -p "$OUT"
 git archive HEAD | tar -x -C "$OUT"
 rm -rf "$OUT/instructor"
 # usuń sekcje README przeznaczone tylko dla prowadzącego
-python3 - "$OUT/README.md" <<'PY'
+PY=python3; "$PY" -c 1 2>/dev/null || PY=python   # Windows: python3 bywa atrapą ze Sklepu
+"$PY" - "$OUT/README.md" <<'PY'
 import re, sys
 p = sys.argv[1]
 s = open(p, encoding="utf-8").read()

@@ -56,7 +56,14 @@ Salowe Wi-Fi nie udźwignie pobierania całych kolekcji, więc prowadzący **raz
 ```
 
 Wynik: `course_pack/` + `course_pack.zip` (do udostępnienia: Google Drive / Zenodo) i `instructor_private/challenge_gt/`
-(**etykiety wyzwania — nie udostępniać**). Po wgraniu pakietu wpisz link do pliku w `COURSE_PACK_URL`
+(**etykiety wyzwania — nie udostępniać**). Przed udostępnieniem uruchom `python data/check_course_pack.py course_pack.zip`:
+sprawdza brak etykiet wyzwania, licencję i cytowanie, a także podaje SHA-256 pliku.
+
+**Gdzie wgrać.**
+- **Zenodo** (zalecane): stały DOI do cytowania, wersjonowanie, licencja CC BY zgodna z LCTSC. Pakiet staje się
+  publicznym zbiorem pochodnym, więc w opisie podaj cytowania z sekcji 1 i informację o modyfikacjach.
+- **Google Drive**: szybciej, bez DOI. Link „każdy z linkiem”; pliki z Drive czasem wymagają potwierdzenia
+  pobrania przy dużym rozmiarze. Po wgraniu pakietu wpisz link do pliku w `COURSE_PACK_URL`
 w `rtcourse/data.py` (albo ustaw zmienną środowiskową `RTCOURSE_PACK_URL`).
 
 Zawartość pakietu: `cases/*.npz` (CT przeskalowane 2× w płaszczyźnie poprzecznej, struktury, wirtualny guz, dawka modelowa),
